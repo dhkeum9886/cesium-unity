@@ -1,0 +1,4 @@
+repository "cesium-unity 2025-08-20_09-14-11/cesium-unity@14568803481868@cloud"
+  path "/"
+    br "/main"
+    co "/main"
