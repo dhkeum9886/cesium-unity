@@ -79,7 +79,9 @@ public class ATVController : MonoBehaviour
         else
         {
             float half = torque * 0.5f;
-            FL.motorTorque = FR.motorTorque = RL.motorTorque = RR.motorTorque = half;
+            float per = torque * 0.25f;
+            //FL.motorTorque = FR.motorTorque = RL.motorTorque = RR.motorTorque = half;
+            FL.motorTorque = FR.motorTorque = RL.motorTorque = RR.motorTorque = per;
         }
 
         // Brakes

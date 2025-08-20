@@ -1,11 +1,12 @@
 using UnityEngine;
 
+// CinemachineFollowCamera 으로 대체, 비활성화 함
 public class FollowCamera : MonoBehaviour
 {
     public Transform target;
-    public Vector3 offset = new Vector3(0f, 3f, -7f);
-    public float followLerp = 8f;
-    public float lookLerp = 12f;
+    public Vector3 offset = new Vector3(0f, 15f, -30f);
+    public float followLerp = 5f;
+    public float lookLerp = 5f;
 
     void LateUpdate()
     {
