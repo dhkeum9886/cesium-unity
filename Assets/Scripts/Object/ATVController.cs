@@ -32,7 +32,13 @@ public class ATVController : MonoBehaviour
     public LayerMask groundMask = ~0;
 
     [Header("Fire")]
-    public float fireCooldown = 0.1f;
+    public Transform muzzle;                // 1단계에서 만든 Muzzle
+    public GameObject projectilePrefab;     // 3단계에서 만든 Projectile 프리팹
+    public float projectileSpeed = 80f;     // m/s
+    public float projectileLife = 5f;       // 초
+    public float projectileMaxDistance = 300f;
+    public float fireCooldown = 0.15f;      // 연사 간격
+    public LayerMask projectileHitMask = ~0;// 폭발 힘이 영향을 줄 레이어
     float _nextFireTime;
 
     Rigidbody rb;
@@ -63,17 +69,37 @@ public class ATVController : MonoBehaviour
 
     void TryFire()
     {
+        if (!muzzle || !projectilePrefab) return;
         if (Time.time < _nextFireTime) return;
         _nextFireTime = Time.time + fireCooldown;
 
-        // 여기서 실제 발사 로직을 수행하세요.
-        // 예: 레이캐스트, 탄환 스폰, 사운드/머즐플래시 등
         Debug.Log("FIRE!");
-        // Raycast 예시:
-        // if (Physics.Raycast(transform.position + transform.forward * 1.0f, transform.forward, out var hit, 500f))
-        // {
-        //     Debug.DrawLine(transform.position, hit.point, Color.red, 0.2f);
-        // }
+
+        // 프리팹 생성
+        var go = Instantiate(projectilePrefab, muzzle.position, muzzle.rotation);
+
+        // 자기 자신과 충돌 무시
+        var projCol = go.GetComponent<Collider>();
+        if (projCol)
+        {
+            foreach (var col in GetComponentsInChildren<Collider>())
+                if (col) Physics.IgnoreCollision(projCol, col, true);
+        }
+
+        // 초기 속도 설정(차량 속도 상속 + 총구 방향)
+        var pr = go.GetComponent<Projectile>();
+        var inheritVel = rb ? rb.linearVelocity : Vector3.zero;
+        if (pr)
+        {
+            pr.Init(gameObject, projectileSpeed, projectileLife, projectileMaxDistance,
+                    projectileHitMask, inheritVel);
+        }
+        else
+        {
+            // 만약 Projectile 스크립트가 없다면 최소한의 초기 속도라도
+            var r = go.GetComponent<Rigidbody>();
+            if (r) r.linearVelocity = muzzle.forward * projectileSpeed + inheritVel;
+        }
     }
 
     void FixedUpdate()
