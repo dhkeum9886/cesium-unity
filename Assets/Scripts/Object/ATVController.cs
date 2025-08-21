@@ -31,6 +31,10 @@ public class ATVController : MonoBehaviour
     public float groundRayStartHeight = 500f;
     public LayerMask groundMask = ~0;
 
+    [Header("Fire")]
+    public float fireCooldown = 0.1f;
+    float _nextFireTime;
+
     Rigidbody rb;
     Vector2 move;
     bool brake, handbrake, reset;
@@ -51,6 +55,26 @@ public class ATVController : MonoBehaviour
     public void OnBrake(InputValue v) => brake = v.isPressed;
     public void OnHandbrake(InputValue v) => handbrake = v.isPressed;
     public void OnReset(InputValue v) { if (v.isPressed) reset = true; }
+    public void OnFire(InputValue v)
+    {
+        if (v.isPressed)
+            TryFire();
+    }
+
+    void TryFire()
+    {
+        if (Time.time < _nextFireTime) return;
+        _nextFireTime = Time.time + fireCooldown;
+
+        // 여기서 실제 발사 로직을 수행하세요.
+        // 예: 레이캐스트, 탄환 스폰, 사운드/머즐플래시 등
+        Debug.Log("FIRE!");
+        // Raycast 예시:
+        // if (Physics.Raycast(transform.position + transform.forward * 1.0f, transform.forward, out var hit, 500f))
+        // {
+        //     Debug.DrawLine(transform.position, hit.point, Color.red, 0.2f);
+        // }
+    }
 
     void FixedUpdate()
     {
