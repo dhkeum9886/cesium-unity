@@ -1097,6 +1097,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 992437926738536045, guid: 83eebd844dfc10a458b8e514f8fb66c0, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4671382956527242150, guid: 83eebd844dfc10a458b8e514f8fb66c0, type: 3}
       propertyPath: m_Name
       value: ATV
