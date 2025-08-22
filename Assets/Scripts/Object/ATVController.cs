@@ -32,24 +32,30 @@ public class ATVController : MonoBehaviour
     public LayerMask groundMask = ~0;
 
     [Header("Fire")]
-    public Transform muzzle;                // 1´Ü°è¿¡¼­ ¸¸µç Muzzle
-    public GameObject projectilePrefab;     // 3´Ü°è¿¡¼­ ¸¸µç Projectile ÇÁ¸®ÆÕ
+    public Transform muzzle;                // 1ï¿½Ü°è¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Muzzle
+    public GameObject projectilePrefab;     // 3ï¿½Ü°è¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Projectile ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     public float projectileSpeed = 80f;     // m/s
-    public float projectileLife = 5f;       // ÃÊ
+    public float projectileLife = 5f;       // ï¿½ï¿½
     public float projectileMaxDistance = 300f;
-    public float fireCooldown = 0.15f;      // ¿¬»ç °£°İ
-    public LayerMask projectileHitMask = ~0;// Æø¹ß ÈûÀÌ ¿µÇâÀ» ÁÙ ·¹ÀÌ¾î
+    public float fireCooldown = 0.15f;      // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    public LayerMask projectileHitMask = ~0;// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¾ï¿½
     float _nextFireTime;
 
     Rigidbody rb;
     Vector2 move;
     bool brake, handbrake, reset;
 
+    Vector3 _scenePlacedPos;
+    Quaternion _scenePlacedRot;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         rb.interpolation = RigidbodyInterpolation.Interpolate;
         rb.centerOfMass = new Vector3(0, -0.3f, 0);
+
+        _scenePlacedPos = transform.position;
+        _scenePlacedRot = transform.rotation;
     }
 
     void Start()
@@ -75,10 +81,10 @@ public class ATVController : MonoBehaviour
 
         Debug.Log("FIRE!");
 
-        // ÇÁ¸®ÆÕ »ı¼º
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         var go = Instantiate(projectilePrefab, muzzle.position, muzzle.rotation);
 
-        // ÀÚ±â ÀÚ½Å°ú Ãæµ¹ ¹«½Ã
+        // ï¿½Ú±ï¿½ ï¿½Ú½Å°ï¿½ ï¿½æµ¹ ï¿½ï¿½ï¿½ï¿½
         var projCol = go.GetComponent<Collider>();
         if (projCol)
         {
@@ -86,7 +92,7 @@ public class ATVController : MonoBehaviour
                 if (col) Physics.IgnoreCollision(projCol, col, true);
         }
 
-        // ÃÊ±â ¼Óµµ ¼³Á¤(Â÷·® ¼Óµµ »ó¼Ó + ÃÑ±¸ ¹æÇâ)
+        // ï¿½Ê±ï¿½ ï¿½Óµï¿½ ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½ ï¿½Óµï¿½ ï¿½ï¿½ï¿½ + ï¿½Ñ±ï¿½ ï¿½ï¿½ï¿½ï¿½)
         var pr = go.GetComponent<Projectile>();
         var inheritVel = rb ? rb.linearVelocity : Vector3.zero;
         if (pr)
@@ -96,7 +102,7 @@ public class ATVController : MonoBehaviour
         }
         else
         {
-            // ¸¸¾à Projectile ½ºÅ©¸³Æ®°¡ ¾ø´Ù¸é ÃÖ¼ÒÇÑÀÇ ÃÊ±â ¼Óµµ¶óµµ
+            // ï¿½ï¿½ï¿½ï¿½ Projectile ï¿½ï¿½Å©ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½Ù¸ï¿½ ï¿½Ö¼ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½ ï¿½Óµï¿½ï¿½ï¿½
             var r = go.GetComponent<Rigidbody>();
             if (r) r.linearVelocity = muzzle.forward * projectileSpeed + inheritVel;
         }
@@ -109,8 +115,11 @@ public class ATVController : MonoBehaviour
         float steer = Mathf.Clamp(move.x, -1f, 1f);
 
         // Steer (front)
-        FL.steerAngle = maxSteerAngle * steer;
-        FR.steerAngle = maxSteerAngle * steer;
+        if (FL && FR)
+        {
+            FL.steerAngle = maxSteerAngle * steer;
+            FR.steerAngle = maxSteerAngle * steer;
+        }
 
         // Torque
         float torque = 0f;
@@ -137,7 +146,11 @@ public class ATVController : MonoBehaviour
         // Brakes
         float b = brake ? brakeTorque : 0f;
         if (handbrake) b = handbrakeTorque;
-        FL.brakeTorque = FR.brakeTorque = RL.brakeTorque = RR.brakeTorque = b;
+
+        if (FL) FL.brakeTorque = b;
+        if (FR) FR.brakeTorque = b;
+        if (RL) RL.brakeTorque = b;
+        if (RR) RR.brakeTorque = b;
 
         // Downforce
         rb.AddForce(-transform.up * downForce * rb.linearVelocity.magnitude);
@@ -151,8 +164,24 @@ public class ATVController : MonoBehaviour
         if (reset)
         {
             reset = false;
-            ResetUpright();
+            //ResetUpright();
+            ResetToScenePlacement();
         }
+    }
+
+    void ResetToScenePlacement()
+    {
+        // ë¬¼ë¦¬ ë„ê³  ìœ„ì¹˜/ìì„¸ ë¦¬ì…‹
+        rb.isKinematic = true;
+
+        transform.SetPositionAndRotation(_scenePlacedPos, _scenePlacedRot);
+
+        // ì†ë„ ì´ˆê¸°í™”
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        rb.isKinematic = false;
+        rb.Sleep(); // ë¬¼ë¦¬ ì•ˆì •í™”
     }
 
     void UpdateWheelVisuals(WheelCollider col, Transform mesh)

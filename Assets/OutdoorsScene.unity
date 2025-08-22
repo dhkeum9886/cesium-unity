@@ -1170,6 +1170,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ATV
       objectReference: {fileID: 0}
+    - target: {fileID: 4938269993730914298, guid: c6e3eae7cd9f62b47a78cc1edad2d37f, type: 3}
+      propertyPath: resetTarget
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5449292465161802012, guid: c6e3eae7cd9f62b47a78cc1edad2d37f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 71.43
