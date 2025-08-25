@@ -48,6 +48,9 @@ public class ATVController : MonoBehaviour
     Vector3 _scenePlacedPos;
     Quaternion _scenePlacedRot;
 
+    [Header("UI/Video")]
+    public GuidedVideoAuto guidedVideoAuto;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -106,6 +109,8 @@ public class ATVController : MonoBehaviour
             var r = go.GetComponent<Rigidbody>();
             if (r) r.linearVelocity = muzzle.forward * projectileSpeed + inheritVel;
         }
+
+        guidedVideoAuto?.OnProjectileFired();
     }
 
     void FixedUpdate()
